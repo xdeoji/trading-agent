@@ -11,7 +11,7 @@ The agent reads [INSTALL.md](INSTALL.md), sets up a wallet, installs dependencie
 ### Manual setup
 
 ```bash
-cd agents/clawdbot
+python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 bash setup-agent.sh              # generate wallet
 # Fund MON + USDC (see printed instructions)
@@ -49,7 +49,7 @@ See [HEARTBEAT.md](HEARTBEAT.md) for continuous autonomous trading cycles.
 
 **Option A**: Copy into workspace skills (auto-detected)
 ```bash
-cp -r agents/clawdbot skills/blackjack-trader
+cp -r /path/to/trading-agent skills/blackjack-trader
 ```
 
 **Option B**: Add to `~/.openclaw/openclaw.json`
@@ -57,7 +57,7 @@ cp -r agents/clawdbot skills/blackjack-trader
 {
   "skills": {
     "load": {
-      "extraDirs": ["/path/to/not-a-casino/agents/clawdbot"],
+      "extraDirs": ["/path/to/trading-agent"],
       "watch": true
     }
   }
@@ -66,7 +66,7 @@ cp -r agents/clawdbot skills/blackjack-trader
 
 **Option C**: Symlink
 ```bash
-ln -s /path/to/not-a-casino/agents/clawdbot ~/.openclaw/skills/blackjack-trader
+ln -s /path/to/trading-agent ~/.openclaw/skills/blackjack-trader
 ```
 
 ## Architecture

@@ -7,7 +7,8 @@ Follow these steps in order. Steps marked **[ASK USER]** require human input —
 ## Step 1: Install dependencies
 
 ```bash
-cd agents/clawdbot
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -15,6 +16,8 @@ Requires Python 3.10+ and [Foundry](https://book.getfoundry.sh/getting-started/i
 ```bash
 curl -L https://foundry.paradigm.xyz | bash && foundryup
 ```
+
+**Note:** The virtual environment is required on macOS (which blocks global pip installs). All subsequent `python3` commands must run inside this venv. If commands fail with import errors, re-activate with `source venv/bin/activate`.
 
 ## Step 2: Generate wallet
 
@@ -89,15 +92,21 @@ Run the ready check anytime to diagnose issues:
 python3 ./tools/ready_check.py
 ```
 
+If you get `ModuleNotFoundError`, re-activate the venv:
+```bash
+source venv/bin/activate
+```
+
 ---
 
 ## Manual Install (without an AI agent)
 
 If you're setting this up yourself rather than through an agent:
 
-1. `pip install -r requirements.txt`
-2. `bash setup-agent.sh` — generates wallet + `agent.env`
-3. Fund MON (faucet or transfer) and USDC to the printed address
-4. `bash setup-agent.sh --fund` — deposits USDC into vault
-5. `python3 ./tools/ready_check.py` — verify everything works
-6. Start trading with `/blackjack-trader scan for opportunities`
+1. `python3 -m venv venv && source venv/bin/activate`
+2. `pip install -r requirements.txt`
+3. `bash setup-agent.sh` — generates wallet + `agent.env`
+4. Fund MON (faucet or transfer) and USDC to the printed address
+5. `bash setup-agent.sh --fund` — deposits USDC into vault
+6. `python3 ./tools/ready_check.py` — verify everything works
+7. Start trading with `/blackjack-trader scan for opportunities`

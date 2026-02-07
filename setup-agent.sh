@@ -17,8 +17,6 @@
 #   - Game server running (so markets exist to trade)
 #
 # Usage:
-#   cd agents/clawdbot
-#
 #   # Generate wallet and env file
 #   bash setup-agent.sh                     # creates agent.env
 #   bash setup-agent.sh agent-1             # creates agent-1.env
