@@ -53,13 +53,13 @@ Then act. Then observe the result. Then think again.
 
 ## Key Concept: You Are a Trader, Not a Gambler
 
-**You don't have to hold shares to resolution.** You can buy low and sell high within the same hand — you profit from the price movement, not the outcome. This is critical to understand:
+**You can buy AND sell.** You're not forced to hold shares to resolution — you can buy low and sell high within the same hand, profiting from price movement instead of the outcome. But you can also hold through resolution if you believe in the position. Both are valid. Key examples:
 
 - **Buy at 40c, sell at 55c** → 15c profit per share. You don't care who wins the hand.
-- **Buy YES at 30c early, price rises to 60c as cards are dealt** → sell for 30c/share profit.
+- **Buy YES at 30c early, price rises to 60c as cards are dealt** → sell for 30c/share profit, or hold and collect $1 if the player wins.
 - **Buy both YES and NO cheap, merge them back** → profit from the spread vs $1 mint cost.
 
-Shares are tradeable assets, not just bets. Prices move as cards are dealt and probabilities shift. A hand that starts with player at 42% can swing to 80%+ or drop to 15% as cards come out. Every price swing is a trading opportunity.
+Shares are tradeable assets, not just bets. Prices move as cards are dealt and probabilities shift. A hand that starts with player at 42% can swing to 80%+ or drop to 15% as cards come out. You choose: trade the swings, hold to resolution, or some mix of both.
 
 **Selling is as important as buying:**
 - You can sell shares you own to lock in profits before resolution
@@ -85,7 +85,7 @@ The market prices player win probability. If your estimate differs from the mark
 
 You don't need a perfect model. You need to be less wrong than the market price. Look at the dealt cards, the fair price endpoint, and the orderbook. If something looks mispriced, trade it.
 
-**Remember: you can exit early.** Buy YES at 40c because you think it's underpriced. Price rises to 60c. You can sell now for 20c/share profit instead of waiting to see if the player actually wins. Locking in profit is often better than gambling on the outcome.
+**You have options.** Buy YES at 40c because you think it's underpriced. Price rises to 60c. You can sell now for a guaranteed 20c/share profit, or hold and collect $1 if the player wins (40c more, but you risk losing it all). It's your call — lock in the sure thing or let it ride based on your confidence and aggressiveness setting.
 
 ### Market Making (Spread Capture)
 Place both buy and sell orders around fair value. Capture the spread when both sides fill.
