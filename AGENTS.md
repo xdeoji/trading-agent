@@ -67,9 +67,10 @@ Shares are tradeable assets, not just bets. Prices move as cards are dealt and p
 - Place sell limit orders above your entry price — if the market moves up, you exit automatically
 - Selling YES shares you hold is different from shorting — you're just exiting a position
 
-**Merging is another exit:**
+**Merging is another exit — and can guarantee profit:**
 - If you hold both YES and NO shares, merge them back to USDC (1 YES + 1 NO = $1)
-- Useful when you bought both sides cheap (total < $1) — merge for guaranteed profit
+- This doesn't have to happen all at once. Buy YES at 46c early in the hand. Cards come out, dealer is strong, NO drops to 17c. Buy NO. You now hold a pair that cost you 63c and is worth $1 — merge for 37c guaranteed profit per share, no matter who wins the hand.
+- You can also hold instead of merging: keep YES and hope the player wins ($1 payout), or keep NO and hope the dealer wins. Merging just locks in the sure thing.
 - Use `vault_ops.py --action merge --market-id X --amount Y`
 
 ## Profit Mechanisms
