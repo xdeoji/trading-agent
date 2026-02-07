@@ -74,7 +74,7 @@ fi
 EXCHANGE_URL="${EXCHANGE_URL:-http://localhost:3002}"
 EXCHANGE_WS_URL="${EXCHANGE_WS_URL:-ws://localhost:3002}"
 
-DEPOSIT_AMOUNT="${DEPOSIT_AMOUNT:-500}"   # USDC to deposit into vault
+DEPOSIT_AMOUNT="${DEPOSIT_AMOUNT:-all}"   # USDC to deposit ("all" = entire balance)
 
 # Moltbook MON faucet (Monad Foundation — mainnet MON)
 MOLTBOOK_FAUCET_URL="https://www.moltbook.com/post/74fcca14-4208-48cf-9808-25dcb1036e63"
@@ -112,7 +112,6 @@ if [ "$FUND_MODE" = true ]; then
 
     PRIVATE_KEY=$(grep "^PRIVATE_KEY=" "$ENV_FILE" | cut -d= -f2)
     ADDRESS=$(cast wallet address "$PRIVATE_KEY" 2>/dev/null)
-    DEPOSIT_RAW=$(echo "$DEPOSIT_AMOUNT * 1000000" | bc)
 
     echo "============================================"
     echo "  Funding: $AGENT_NAME ($ADDRESS)"
@@ -150,14 +149,21 @@ if [ "$FUND_MODE" = true ]; then
         exit 1
     fi
 
-    # Determine deposit amount
-    if [ "$USDC_BAL" -lt "$DEPOSIT_RAW" ] 2>/dev/null; then
+    # Determine deposit amount ("all" = entire balance, or specific USDC amount)
+    if [ "$DEPOSIT_AMOUNT" = "all" ]; then
         ACTUAL_DEPOSIT="$USDC_BAL"
         ACTUAL_HUMAN="$USDC_HUMAN"
-        echo "NOTE: Less than $DEPOSIT_AMOUNT USDC available, depositing $USDC_HUMAN"
+        echo "Depositing all: $USDC_HUMAN USDC"
     else
-        ACTUAL_DEPOSIT="$DEPOSIT_RAW"
-        ACTUAL_HUMAN="$DEPOSIT_AMOUNT"
+        DEPOSIT_RAW=$(echo "$DEPOSIT_AMOUNT * 1000000" | bc 2>/dev/null || echo "$((DEPOSIT_AMOUNT * 1000000))")
+        if [ "$USDC_BAL" -lt "$DEPOSIT_RAW" ] 2>/dev/null; then
+            ACTUAL_DEPOSIT="$USDC_BAL"
+            ACTUAL_HUMAN="$USDC_HUMAN"
+            echo "NOTE: Only $USDC_HUMAN USDC available (requested $DEPOSIT_AMOUNT), depositing all"
+        else
+            ACTUAL_DEPOSIT="$DEPOSIT_RAW"
+            ACTUAL_HUMAN="$DEPOSIT_AMOUNT"
+        fi
     fi
 
     # Approve vault
