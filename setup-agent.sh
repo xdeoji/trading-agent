@@ -256,6 +256,8 @@ DEFAULT_ORDER_SIZE_USDC=5
 PNL_TARGET_DAILY=25
 MAX_EXPOSURE_PCT=70
 STOP_LOSS_PCT=20
+# Set this to your personal wallet address to enable cashout
+# WITHDRAW_TO=0xYourPersonalWalletAddress
 EOF
 echo "Config written to $ENV_FILE"
 echo ""

@@ -31,6 +31,8 @@ python3 ./tools/vault_ops.py --action balance                      # Vault + wal
 python3 ./tools/vault_ops.py --action balance --market-id 42       # Also show YES/NO share balances
 python3 ./tools/vault_ops.py --action deposit --amount 100         # Deposit USDC into vault
 python3 ./tools/vault_ops.py --action withdraw --amount 50         # Withdraw USDC from vault
+python3 ./tools/cashout.py                                         # Dry run: show cashout plan
+python3 ./tools/cashout.py --amount 50 --confirm                   # Transfer 50 USDC to personal wallet
 python3 ./tools/vault_ops.py --action mint --market-id 42 --amount 10   # Mint 10 YES + 10 NO shares ($10)
 python3 ./tools/vault_ops.py --action merge --market-id 42 --amount 5   # Merge 5 pairs back to $5 USDC
 python3 ./tools/vault_ops.py --action claim --market-id 42         # Claim winnings after resolution
@@ -113,6 +115,16 @@ Player dealt 20, dealer showing 5 → player wins 85%+. If market prices 60%, bu
 - **Orders**: EIP-712 with domain `{ name: "BlackjackExchange", version: "1", chainId, verifyingContract }`
 - **Cancels**: EIP-191 on `Cancel order {orderId}\nTimestamp: {timestamp}`
 - **Use the tools** — `place_order.py` and `cancel_order.py` handle signing automatically.
+
+## Cashout (Withdrawing Funds)
+
+`cashout.py` withdraws USDC from the vault and transfers it to the user's personal wallet. If the wallet doesn't have enough USDC, it automatically withdraws from the vault first.
+
+**Security**: The destination address MUST be pre-configured as `WITHDRAW_TO` in `agent.env`. This prevents prompt injection attacks where malicious data (market names, chat messages) could trick the AI into sending funds to an attacker's address. The tool will refuse to run if `WITHDRAW_TO` is not set, and will reject any `--to` address that doesn't match it.
+
+**Setup**: The user must add `WITHDRAW_TO=0xTheirAddress` to `agent.env` themselves.
+
+**IMPORTANT**: Always run without `--confirm` first to show the user the plan. Only run with `--confirm` after the user explicitly approves the dry-run output.
 
 ## Autonomous Mode
 
