@@ -1,0 +1,92 @@
+"""Shared configuration loader for all tools."""
+
+import glob
+import json
+import os
+import sys
+
+# Resolve paths relative to this file's parent directory (the skill root)
+_SKILL_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_CONFIG_PATH = os.path.join(_SKILL_DIR, "config.json")
+
+
+def _parse_env_file(path: str) -> dict:
+    """Parse a .env file into a dict. Skips comments and blank lines."""
+    env = {}
+    with open(path) as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if "=" not in line:
+                continue
+            key, _, value = line.partition("=")
+            env[key.strip()] = value.strip()
+    return env
+
+
+def _load_agent_env() -> dict:
+    """Auto-discover agent*.env in the skill root directory."""
+    env_files = sorted(glob.glob(os.path.join(_SKILL_DIR, "agent*.env")))
+    if env_files:
+        return _parse_env_file(env_files[0])
+    return {}
+
+
+def load_config() -> dict:
+    """Load config with priority: env vars > agent.env > config.json > defaults."""
+    # Lowest priority: config.json
+    file_config = {}
+    if os.path.exists(_CONFIG_PATH):
+        with open(_CONFIG_PATH) as f:
+            file_config = json.load(f)
+
+    # Middle priority: agent.env (agent-specific runtime config)
+    agent_env = _load_agent_env()
+
+    def get(key: str, default: str = "") -> str:
+        return os.environ.get(key, agent_env.get(key, file_config.get(key, default)))
+
+    return {
+        "PRIVATE_KEY": get("PRIVATE_KEY"),
+        "EXCHANGE_URL": get("EXCHANGE_URL", "http://localhost:3002"),
+        "EXCHANGE_WS_URL": get("EXCHANGE_WS_URL", "ws://localhost:3002"),
+        "CHAIN_ID": int(get("CHAIN_ID", "143")),
+        "EXCHANGE_ADDRESS": get("EXCHANGE_ADDRESS", "0xC628e81B506b572391669339c2AbaCFafa0d95dD"),
+        "VAULT_ADDRESS": get("VAULT_ADDRESS", "0xd1a710199b84899856696Ce0AA30377fB7B485C3"),
+        "USDC_ADDRESS": get("USDC_ADDRESS", "0xDE6498947808BCcD50F18785Cc3B0C472380C1fB"),
+        "RPC_URL": get("RPC_URL", "https://rpc.monad.xyz"),
+        "MAX_POSITION_USDC": float(get("MAX_POSITION_USDC", "50")),
+        "DEFAULT_ORDER_SIZE_USDC": float(get("DEFAULT_ORDER_SIZE_USDC", "5")),
+        "PNL_TARGET_DAILY": float(get("PNL_TARGET_DAILY", "25")),
+        "MAX_EXPOSURE_PCT": float(get("MAX_EXPOSURE_PCT", "70")),
+        "STOP_LOSS_PCT": float(get("STOP_LOSS_PCT", "20")),
+    }
+
+
+def get_address_from_key(private_key: str) -> str:
+    """Derive address from private key using eth_account."""
+    from eth_account import Account
+    return Account.from_key(private_key).address
+
+
+def require_private_key(cfg: dict) -> str:
+    """Ensure PRIVATE_KEY is set, exit with error JSON if not."""
+    pk = cfg["PRIVATE_KEY"]
+    if not pk:
+        json.dump({"success": False, "error": "PRIVATE_KEY not set. Export it or add to config.json"}, sys.stdout)
+        print()
+        sys.exit(1)
+    return pk
+
+
+def output(data: dict) -> None:
+    """Print JSON output to stdout."""
+    json.dump(data, sys.stdout, default=str)
+    print()
+
+
+def error_exit(msg: str) -> None:
+    """Print error JSON and exit with code 1."""
+    output({"success": False, "error": msg})
+    sys.exit(1)
