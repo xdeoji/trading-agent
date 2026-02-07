@@ -30,6 +30,27 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
 
+# ── Activate venv if present ─────────────────────────────────
+
+if [ -d "venv" ] && [ -f "venv/bin/activate" ]; then
+    source venv/bin/activate
+fi
+
+# ── Source existing agent.env for defaults ────────────────────
+# Parse arguments first to determine which env file to source
+
+_AGENT_NAME="agent"
+for _arg in "$@"; do
+    if [[ "$_arg" != -* ]] && [ "$_arg" != "--fund" ]; then
+        _AGENT_NAME="$_arg"
+    fi
+done
+_ENV_FILE="${_AGENT_NAME}.env"
+
+if [ -f "$_ENV_FILE" ]; then
+    set -a && source "$_ENV_FILE" && set +a
+fi
+
 # ── Network presets ───────────────────────────────────────────
 # Set NETWORK=mainnet to switch (default: testnet)
 
@@ -97,6 +118,18 @@ if [ "$FUND_MODE" = true ]; then
     echo "  Funding: $AGENT_NAME ($ADDRESS)"
     echo "============================================"
     echo ""
+    echo "Network:  $NETWORK"
+    echo "Chain ID: $CHAIN_ID"
+    echo "RPC:      $RPC_URL"
+    echo ""
+
+    # Validate chain ID matches RPC
+    ACTUAL_CHAIN=$(cast chain-id --rpc-url "$RPC_URL" 2>/dev/null || echo "")
+    if [ -n "$ACTUAL_CHAIN" ] && [ "$ACTUAL_CHAIN" != "$CHAIN_ID" ]; then
+        echo "ERROR: Chain ID mismatch. RPC reports $ACTUAL_CHAIN, config expects $CHAIN_ID."
+        echo "Check RPC_URL and CHAIN_ID in $ENV_FILE."
+        exit 1
+    fi
 
     # Check MON balance
     MON_WEI=$(cast balance "$ADDRESS" --rpc-url "$RPC_URL" 2>/dev/null || echo "0")

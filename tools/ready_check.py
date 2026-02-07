@@ -20,7 +20,11 @@ def check_deps():
         except ImportError:
             missing.append(pkg)
     if missing:
-        return "FAIL", f"Missing packages: {', '.join(missing)}. Run: pip install -r requirements.txt"
+        hint = "pip install -r requirements.txt"
+        venv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "venv")
+        if os.path.isdir(venv_path) and not sys.prefix.startswith(venv_path):
+            hint = "source venv/bin/activate && pip install -r requirements.txt"
+        return "FAIL", f"Missing packages: {', '.join(missing)}. Run: {hint}"
     return "PASS", None
 
 
