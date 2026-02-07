@@ -30,18 +30,28 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
 
-# ── Configuration ─────────────────────────────────────────────
-# Override these with environment variables if needed
+# ── Network presets ───────────────────────────────────────────
+# Set NETWORK=mainnet to switch (default: testnet)
 
-RPC_URL="${RPC_URL:-https://rpc.monad.xyz}"
+NETWORK="${NETWORK:-testnet}"
+
+if [ "$NETWORK" = "mainnet" ]; then
+    RPC_URL="${RPC_URL:-https://rpc.monad.xyz}"
+    CHAIN_ID="${CHAIN_ID:-143}"
+    # Update these after mainnet deployment
+    USDC_ADDRESS="${USDC_ADDRESS:-0xDE6498947808BCcD50F18785Cc3B0C472380C1fB}"
+    VAULT_ADDRESS="${VAULT_ADDRESS:-0xd1a710199b84899856696Ce0AA30377fB7B485C3}"
+    EXCHANGE_ADDRESS="${EXCHANGE_ADDRESS:-0xC628e81B506b572391669339c2AbaCFafa0d95dD}"
+else
+    RPC_URL="${RPC_URL:-https://testnet-rpc.monad.xyz}"
+    CHAIN_ID="${CHAIN_ID:-10143}"
+    USDC_ADDRESS="${USDC_ADDRESS:-0xDE6498947808BCcD50F18785Cc3B0C472380C1fB}"
+    VAULT_ADDRESS="${VAULT_ADDRESS:-0xd1a710199b84899856696Ce0AA30377fB7B485C3}"
+    EXCHANGE_ADDRESS="${EXCHANGE_ADDRESS:-0xC628e81B506b572391669339c2AbaCFafa0d95dD}"
+fi
+
 EXCHANGE_URL="${EXCHANGE_URL:-http://localhost:3002}"
 EXCHANGE_WS_URL="${EXCHANGE_WS_URL:-ws://localhost:3002}"
-CHAIN_ID="${CHAIN_ID:-143}"
-
-# Contract addresses — update these after redeployment
-USDC_ADDRESS="${USDC_ADDRESS:-0xDE6498947808BCcD50F18785Cc3B0C472380C1fB}"
-VAULT_ADDRESS="${VAULT_ADDRESS:-0xd1a710199b84899856696Ce0AA30377fB7B485C3}"
-EXCHANGE_ADDRESS="${EXCHANGE_ADDRESS:-0xC628e81B506b572391669339c2AbaCFafa0d95dD}"
 
 DEPOSIT_AMOUNT="${DEPOSIT_AMOUNT:-500}"   # USDC to deposit into vault
 
@@ -192,6 +202,8 @@ echo ""
 # Write env file
 cat > "$ENV_FILE" << EOF
 # $AGENT_NAME — $ADDRESS
+# Network: $NETWORK (change to "mainnet" when ready)
+NETWORK=$NETWORK
 PRIVATE_KEY=$PRIVATE_KEY
 EXCHANGE_URL=$EXCHANGE_URL
 EXCHANGE_WS_URL=$EXCHANGE_WS_URL

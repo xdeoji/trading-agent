@@ -4,7 +4,24 @@ You are installing **blackjack-trader**, an autonomous trading agent for blackja
 
 Follow these steps in order. Steps marked **[ASK USER]** require human input — pause and ask before continuing.
 
-## Step 1: Install dependencies
+## Quick Install
+
+Run the one-command installer:
+
+```bash
+bash install.sh
+```
+
+This handles Python venv, dependencies, Foundry, and wallet generation automatically. Then skip to **Step 3** (funding).
+
+To install for mainnet instead of testnet:
+```bash
+NETWORK=mainnet bash install.sh
+```
+
+## Step-by-Step Install
+
+### Step 1: Install dependencies
 
 ```bash
 python3 -m venv venv
@@ -19,7 +36,7 @@ curl -L https://foundry.paradigm.xyz | bash && foundryup
 
 **Note:** The virtual environment is required on macOS (which blocks global pip installs). All subsequent `python3` commands must run inside this venv. If commands fail with import errors, re-activate with `source venv/bin/activate`.
 
-## Step 2: Generate wallet
+### Step 2: Generate wallet
 
 ```bash
 bash setup-agent.sh
@@ -29,7 +46,7 @@ This creates `agent.env` with a fresh wallet (private key + address). All tools 
 
 Note the **Address** printed. You'll need it for funding.
 
-## Step 3: Fund MON (gas) **[ASK USER]**
+### Step 3: Fund MON (gas) **[ASK USER]**
 
 The agent needs MON to pay for on-chain transactions. Ask the user which option they prefer:
 
@@ -37,23 +54,23 @@ The agent needs MON to pay for on-chain transactions. Ask the user which option 
 
 **Option B — Transfer from user's wallet**: The user provides their private key or sends MON themselves:
 ```bash
-cast send AGENT_ADDRESS --value 1ether --rpc-url https://rpc.monad.xyz --private-key USER_KEY
+cast send AGENT_ADDRESS --value 1ether --rpc-url https://testnet-rpc.monad.xyz --private-key USER_KEY
 ```
 
 Wait for the user to confirm MON has been sent before proceeding.
 
-## Step 4: Fund USDC **[ASK USER]**
+### Step 4: Fund USDC **[ASK USER]**
 
 Ask the user to transfer USDC to the agent address. They can do this from their own wallet:
 ```bash
 cast send 0xDE6498947808BCcD50F18785Cc3B0C472380C1fB \
   "transfer(address,uint256)" AGENT_ADDRESS AMOUNT \
-  --rpc-url https://rpc.monad.xyz --private-key USER_KEY
+  --rpc-url https://testnet-rpc.monad.xyz --private-key USER_KEY
 ```
 
 Amount is in 6-decimal raw units (500000000 = 500 USDC). Wait for confirmation.
 
-## Step 5: Deposit into Vault
+### Step 5: Deposit into Vault
 
 ```bash
 bash setup-agent.sh --fund
@@ -74,7 +91,7 @@ This approves USDC and deposits it into the trading vault. A ready check runs au
 
 If NETWORK fails, the exchange service may not be running — this is OK for setup, trading will work once it's live.
 
-## Step 6: Start trading
+### Step 6: Start trading
 
 Read SKILL.md for available tools and AGENTS.md for trading strategy. Then:
 
@@ -84,6 +101,20 @@ python3 ./tools/market_analysis.py     # Scan for trading opportunities
 ```
 
 For autonomous operation, see [HEARTBEAT.md](HEARTBEAT.md).
+
+## Network Switching
+
+Default is testnet. To switch to mainnet, set `NETWORK=mainnet` before running any command:
+
+```bash
+# New agent on mainnet
+NETWORK=mainnet bash install.sh
+
+# Or edit an existing agent.env — change NETWORK=testnet to NETWORK=mainnet
+# (also update CHAIN_ID, RPC_URL, and contract addresses)
+```
+
+The `_config.py` loader has built-in presets for both networks. When mainnet contracts are deployed, update the addresses in `_config.py` under `_NETWORKS["mainnet"]`.
 
 ## Troubleshooting
 
@@ -101,12 +132,9 @@ source venv/bin/activate
 
 ## Manual Install (without an AI agent)
 
-If you're setting this up yourself rather than through an agent:
-
-1. `python3 -m venv venv && source venv/bin/activate`
-2. `pip install -r requirements.txt`
-3. `bash setup-agent.sh` — generates wallet + `agent.env`
-4. Fund MON (faucet or transfer) and USDC to the printed address
-5. `bash setup-agent.sh --fund` — deposits USDC into vault
-6. `python3 ./tools/ready_check.py` — verify everything works
-7. Start trading with `/blackjack-trader scan for opportunities`
+```bash
+bash install.sh                         # one command does everything
+# Fund MON + USDC to the printed address
+bash setup-agent.sh --fund              # deposit into vault
+/blackjack-trader scan for opportunities  # start trading
+```

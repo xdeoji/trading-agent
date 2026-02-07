@@ -9,6 +9,26 @@ import sys
 _SKILL_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _CONFIG_PATH = os.path.join(_SKILL_DIR, "config.json")
 
+# Network presets — switch with NETWORK=mainnet or NETWORK=testnet
+_NETWORKS = {
+    "testnet": {
+        "CHAIN_ID": "10143",
+        "RPC_URL": "https://testnet-rpc.monad.xyz",
+        "EXCHANGE_ADDRESS": "0xC628e81B506b572391669339c2AbaCFafa0d95dD",
+        "VAULT_ADDRESS": "0xd1a710199b84899856696Ce0AA30377fB7B485C3",
+        "USDC_ADDRESS": "0xDE6498947808BCcD50F18785Cc3B0C472380C1fB",
+    },
+    "mainnet": {
+        "CHAIN_ID": "143",
+        "RPC_URL": "https://rpc.monad.xyz",
+        # Update these after mainnet deployment
+        "EXCHANGE_ADDRESS": "0xC628e81B506b572391669339c2AbaCFafa0d95dD",
+        "VAULT_ADDRESS": "0xd1a710199b84899856696Ce0AA30377fB7B485C3",
+        "USDC_ADDRESS": "0xDE6498947808BCcD50F18785Cc3B0C472380C1fB",
+    },
+}
+_DEFAULT_NETWORK = "testnet"
+
 
 def _parse_env_file(path: str) -> dict:
     """Parse a .env file into a dict. Skips comments and blank lines."""
@@ -34,28 +54,33 @@ def _load_agent_env() -> dict:
 
 
 def load_config() -> dict:
-    """Load config with priority: env vars > agent.env > config.json > defaults."""
-    # Lowest priority: config.json
+    """Load config with priority: env vars > agent.env > config.json > network preset."""
+    # Lowest priority: network preset
+    network = os.environ.get("NETWORK", _DEFAULT_NETWORK)
+    preset = _NETWORKS.get(network, _NETWORKS[_DEFAULT_NETWORK])
+
+    # Next: config.json
     file_config = {}
     if os.path.exists(_CONFIG_PATH):
         with open(_CONFIG_PATH) as f:
             file_config = json.load(f)
 
-    # Middle priority: agent.env (agent-specific runtime config)
+    # Next: agent.env (agent-specific runtime config)
     agent_env = _load_agent_env()
 
     def get(key: str, default: str = "") -> str:
-        return os.environ.get(key, agent_env.get(key, file_config.get(key, default)))
+        return os.environ.get(key, agent_env.get(key, file_config.get(key, preset.get(key, default))))
 
     return {
         "PRIVATE_KEY": get("PRIVATE_KEY"),
         "EXCHANGE_URL": get("EXCHANGE_URL", "http://localhost:3002"),
         "EXCHANGE_WS_URL": get("EXCHANGE_WS_URL", "ws://localhost:3002"),
-        "CHAIN_ID": int(get("CHAIN_ID", "143")),
-        "EXCHANGE_ADDRESS": get("EXCHANGE_ADDRESS", "0xC628e81B506b572391669339c2AbaCFafa0d95dD"),
-        "VAULT_ADDRESS": get("VAULT_ADDRESS", "0xd1a710199b84899856696Ce0AA30377fB7B485C3"),
-        "USDC_ADDRESS": get("USDC_ADDRESS", "0xDE6498947808BCcD50F18785Cc3B0C472380C1fB"),
-        "RPC_URL": get("RPC_URL", "https://rpc.monad.xyz"),
+        "CHAIN_ID": int(get("CHAIN_ID")),
+        "EXCHANGE_ADDRESS": get("EXCHANGE_ADDRESS"),
+        "VAULT_ADDRESS": get("VAULT_ADDRESS"),
+        "USDC_ADDRESS": get("USDC_ADDRESS"),
+        "RPC_URL": get("RPC_URL"),
+        "NETWORK": network,
         "MAX_POSITION_USDC": float(get("MAX_POSITION_USDC", "50")),
         "DEFAULT_ORDER_SIZE_USDC": float(get("DEFAULT_ORDER_SIZE_USDC", "5")),
         "PNL_TARGET_DAILY": float(get("PNL_TARGET_DAILY", "25")),
