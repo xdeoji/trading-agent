@@ -33,6 +33,15 @@ def main():
         resp.raise_for_status()
         data = resp.json()
         data["success"] = True
+        data["agentConfig"] = {
+            "strategy": cfg["STRATEGY"],
+            "aggressiveness": cfg["AGGRESSIVENESS"],
+            "profitGoal": cfg["PROFIT_GOAL"],
+            "profitMode": cfg["PROFIT_MODE"],
+            "maxPositionUSDC": cfg["MAX_POSITION_USDC"],
+            "maxExposurePct": cfg["MAX_EXPOSURE_PCT"],
+            "stopLossPct": cfg["STOP_LOSS_PCT"],
+        }
         output(data)
     except requests.RequestException as e:
         error_exit(f"Failed to fetch state: {e}")

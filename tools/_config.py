@@ -117,9 +117,12 @@ def load_config() -> dict:
         "USDC_ADDRESS": get("USDC_ADDRESS"),
         "RPC_URL": get("RPC_URL"),
         "NETWORK": get("NETWORK", network),
+        "STRATEGY": get("STRATEGY", "all"),
+        "AGGRESSIVENESS": get("AGGRESSIVENESS", "moderate"),
+        "PROFIT_GOAL": get("PROFIT_GOAL", "make $25 today"),
+        "PROFIT_MODE": get("PROFIT_MODE", "compound"),
         "MAX_POSITION_USDC": float(get("MAX_POSITION_USDC", "50")),
         "DEFAULT_ORDER_SIZE_USDC": float(get("DEFAULT_ORDER_SIZE_USDC", "5")),
-        "PNL_TARGET_DAILY": float(get("PNL_TARGET_DAILY", "25")),
         "MAX_EXPOSURE_PCT": float(get("MAX_EXPOSURE_PCT", "70")),
         "STOP_LOSS_PCT": float(get("STOP_LOSS_PCT", "20")),
     }

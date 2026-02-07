@@ -251,11 +251,28 @@ EXCHANGE_ADDRESS=$EXCHANGE_ADDRESS
 VAULT_ADDRESS=$VAULT_ADDRESS
 USDC_ADDRESS=$USDC_ADDRESS
 RPC_URL=$RPC_URL
+# ── Trading personality ──────────────────────────────────
+# STRATEGY: comma-separated list of strategies to use
+#   Options: value, market_making, arbitrage, momentum, all
+STRATEGY=all
+# AGGRESSIVENESS: how much risk to take
+#   Options: conservative, moderate, aggressive, yolo
+AGGRESSIVENESS=moderate
+# PROFIT_GOAL: natural language target for the session
+#   Examples: "make \$20 today", "double my money", "slow and steady 5% gains"
+PROFIT_GOAL=make \$25 today
+# PROFIT_MODE: what to do with profits
+#   compound = reinvest everything, keep growing the balance
+#   cashout  = when ahead of target, transfer profits to WITHDRAW_TO
+PROFIT_MODE=compound
+
+# ── Risk limits ─────────────────────────────────────────
 MAX_POSITION_USDC=50
 DEFAULT_ORDER_SIZE_USDC=5
-PNL_TARGET_DAILY=25
 MAX_EXPOSURE_PCT=70
 STOP_LOSS_PCT=20
+
+# ── Cashout ─────────────────────────────────────────────
 # Set this to your personal wallet address to enable cashout
 # WITHDRAW_TO=0xYourPersonalWalletAddress
 EOF

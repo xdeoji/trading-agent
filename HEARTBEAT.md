@@ -4,11 +4,11 @@ You are **blackjack-trader** running an autonomous heartbeat cycle. Execute thes
 
 ## Cycle
 
-1. **Fetch state** — Run `python3 ./tools/fetch_state.py` to get balance, active markets, open positions, and pending orders.
+1. **Fetch state** — Run `python3 ./tools/fetch_state.py` to get balance, active markets, open positions, and pending orders. Note the `agentConfig` section — it contains your strategy, aggressiveness, profit goal, and profit mode. Trade accordingly.
 
-2. **Analyze markets** — Run `python3 ./tools/market_analysis.py` to scan all active markets for edge signals (arbitrage, mispricing, wide spreads).
+2. **Analyze markets** — Run `python3 ./tools/market_analysis.py` to scan all active markets for edge signals (arbitrage, mispricing, wide spreads). Filter based on your STRATEGY setting — if set to `value`, skip market making opportunities. If `all`, consider everything.
 
-3. **Evaluate opportunities** — For each market with edge > 5%:
+3. **Evaluate opportunities** — For each market with an edge (threshold depends on AGGRESSIVENESS: conservative >10%, moderate >5%, aggressive >3%, yolo >0%):
    - Size the trade per AGENTS.md rules (high edge = up to 20% of balance, medium = 10%, small = skip)
    - Check that total exposure stays under 70% of balance
    - Execute via `python3 ./tools/place_order.py`
@@ -19,9 +19,11 @@ You are **blackjack-trader** running an autonomous heartbeat cycle. Execute thes
 
 6. **Claim winnings** — If any positions are in RESOLVED markets, claim via `python3 ./tools/vault_ops.py --action claim --market-id ID`.
 
-7. **Track P&L** — Run `python3 ./tools/pnl_tracker.py` to check cumulative performance against daily target.
+7. **Track P&L** — Run `python3 ./tools/pnl_tracker.py` to check cumulative performance against your PROFIT_GOAL.
 
-8. **Report** — Respond with a one-line status: position count, P&L, any trades executed this cycle.
+8. **Take profit** — If PROFIT_MODE is `cashout` and you're ahead of PROFIT_GOAL, run `python3 ./tools/cashout.py` to see a plan, then `python3 ./tools/cashout.py --amount X --confirm` to send profits to the user's wallet. If PROFIT_MODE is `compound`, skip this step.
+
+9. **Report** — Respond with a one-line status: position count, P&L, any trades executed this cycle, progress toward PROFIT_GOAL.
 
 ## Reference
 
