@@ -4,7 +4,7 @@
   "EXCHANGE_WS_URL": "ws://localhost:3002",
   "STRATEGY": "all",
   "AGGRESSIVENESS": "moderate",
-  "PROFIT_GOAL": "make $25 today",
+  "PROFIT_GOAL": "",
   "PROFIT_MODE": "compound",
   "MAX_POSITION_USDC": "50",
   "DEFAULT_ORDER_SIZE_USDC": "5",

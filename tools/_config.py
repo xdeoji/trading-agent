@@ -120,7 +120,7 @@ def load_config() -> dict:
         "AGENT_NAME": get("AGENT_NAME", "agent"),
         "STRATEGY": get("STRATEGY", "all"),
         "AGGRESSIVENESS": get("AGGRESSIVENESS", "moderate"),
-        "PROFIT_GOAL": get("PROFIT_GOAL", "make $25 today"),
+        "PROFIT_GOAL": get("PROFIT_GOAL", ""),
         "PROFIT_MODE": get("PROFIT_MODE", "compound"),
         "MAX_POSITION_USDC": float(get("MAX_POSITION_USDC", "50")),
         "DEFAULT_ORDER_SIZE_USDC": float(get("DEFAULT_ORDER_SIZE_USDC", "5")),

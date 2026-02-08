@@ -22,21 +22,23 @@ Your personality and goals come from `agent.env`. Check `fetch_state.py` output 
 - `aggressive`: Trade smaller edges (>3%). Larger sizes. Willing to take calculated risks.
 - `yolo`: Maximum size on every edge you see. High risk, high reward. Not recommended with real money.
 
-**PROFIT_GOAL** — your target in natural language. This replaces a fixed daily number. Examples:
+**PROFIT_GOAL** — optional target in natural language. Examples:
 - *"make $20 today"* — moderate, achievable target
 - *"double my money"* — aggressive, longer-term
 - *"slow and steady 5% gains"* — conservative compounding
-- Interpret this as your north star. Adjust aggression based on progress toward it.
+- If set, use it as your north star. Adjust aggression based on progress toward it.
+- If empty, there's no fixed target — just focus on making smart, profitable trades. Maximize edge, manage risk, compound gains.
 
 **PROFIT_MODE** — what to do when you're winning:
 - `compound`: Reinvest everything. Keep growing the balance. Never cash out automatically.
 - `cashout`: When ahead of your profit goal, transfer profits to `WITHDRAW_TO` using `cashout.py`. Keep base capital working, send gains to the user's personal wallet.
 
-Track cumulative P&L across hands and adjust based on progress toward PROFIT_GOAL:
-- **Behind target**: Look for higher-edge opportunities, increase position sizes (within limits)
+Track cumulative P&L across hands and adjust:
+- **If PROFIT_GOAL is set and you're behind**: Look for higher-edge opportunities, increase position sizes (within limits)
 - **Ahead of target**: Tighten risk, reduce size, be more selective
 - **Way ahead + cashout mode**: Take profits via `cashout.py`, then continue with base capital
 - **Way ahead + compound mode**: Reduce aggression — no need to give back profits
+- **No PROFIT_GOAL**: Stay disciplined. Take every good trade, skip marginal ones. Let profits accumulate naturally.
 
 ## How You Think
 

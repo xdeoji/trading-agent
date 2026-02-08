@@ -248,7 +248,7 @@ echo ""
 BOT_NAME="$AGENT_NAME"
 STRATEGY="all"
 AGGRESSIVENESS="moderate"
-PROFIT_GOAL="make \$25 today"
+PROFIT_GOAL=""
 PROFIT_MODE="compound"
 MAX_POSITION_USDC=50
 DEFAULT_ORDER_SIZE_USDC=5
@@ -339,7 +339,7 @@ if [ "$INTERACTIVE" = true ]; then
     echo ""
 
     # Profit goal
-    read -rp "Profit goal? (default: make \$25 today): " _goal
+    read -rp "Profit goal? (optional, e.g. \"make \$50 today\"): " _goal
     [ -n "$_goal" ] && PROFIT_GOAL="$_goal"
 
     # Profit mode
@@ -357,7 +357,7 @@ if [ "$INTERACTIVE" = true ]; then
 
     echo "============================================"
     echo "  $BOT_NAME — $STRATEGY / $AGGRESSIVENESS"
-    echo "  Goal: $PROFIT_GOAL"
+    [ -n "$PROFIT_GOAL" ] && echo "  Goal: $PROFIT_GOAL"
     echo "  Risk: max \$$MAX_POSITION_USDC/trade, ${MAX_EXPOSURE_PCT}% exposure"
     echo "  Profits: $PROFIT_MODE"
     echo "============================================"
@@ -385,8 +385,9 @@ STRATEGY=$STRATEGY
 # AGGRESSIVENESS: how much risk to take
 #   Options: conservative, moderate, aggressive, yolo
 AGGRESSIVENESS=$AGGRESSIVENESS
-# PROFIT_GOAL: natural language target for the session
+# PROFIT_GOAL: optional natural language target for the session
 #   Examples: "make \$20 today", "double my money", "slow and steady 5% gains"
+#   Leave empty to let the agent focus on making smart trades without a fixed target
 PROFIT_GOAL=$PROFIT_GOAL
 # PROFIT_MODE: what to do with profits
 #   compound = reinvest everything, keep growing the balance
