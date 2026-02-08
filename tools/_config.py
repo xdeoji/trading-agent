@@ -117,6 +117,7 @@ def load_config() -> dict:
         "USDC_ADDRESS": get("USDC_ADDRESS"),
         "RPC_URL": get("RPC_URL"),
         "NETWORK": get("NETWORK", network),
+        "AGENT_NAME": get("AGENT_NAME", "agent"),
         "STRATEGY": get("STRATEGY", "all"),
         "AGGRESSIVENESS": get("AGGRESSIVENESS", "moderate"),
         "PROFIT_GOAL": get("PROFIT_GOAL", "make $25 today"),

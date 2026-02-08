@@ -18,7 +18,8 @@
 #
 # Usage:
 #   # Generate wallet and env file
-#   bash setup-agent.sh                     # creates agent.env
+#   bash setup-agent.sh                     # creates agent.env with defaults
+#   bash setup-agent.sh --interactive       # choose personality, risk, name
 #   bash setup-agent.sh agent-1             # creates agent-1.env
 #
 #   # Fund MON + USDC (see printed instructions), then:
@@ -82,11 +83,14 @@ MOLTBOOK_FAUCET_URL="https://www.moltbook.com/post/74fcca14-4208-48cf-9808-25dcb
 # ── Parse arguments ───────────────────────────────────────────
 
 FUND_MODE=false
+INTERACTIVE=false
 AGENT_NAME="agent"
 
 for arg in "$@"; do
     if [ "$arg" = "--fund" ]; then
         FUND_MODE=true
+    elif [ "$arg" = "--interactive" ] || [ "$arg" = "-i" ]; then
+        INTERACTIVE=true
     elif [[ "$arg" != -* ]]; then
         AGENT_NAME="$arg"
     fi
@@ -238,10 +242,133 @@ echo "Address:     $ADDRESS"
 echo "Private key: ${PRIVATE_KEY:0:10}...${PRIVATE_KEY: -4}"
 echo ""
 
+# ── Agent personality (interactive or defaults) ────────────
+
+# Defaults
+BOT_NAME="$AGENT_NAME"
+STRATEGY="all"
+AGGRESSIVENESS="moderate"
+PROFIT_GOAL="make \$25 today"
+PROFIT_MODE="compound"
+MAX_POSITION_USDC=50
+DEFAULT_ORDER_SIZE_USDC=5
+MAX_EXPOSURE_PCT=70
+STOP_LOSS_PCT=20
+
+if [ "$INTERACTIVE" = true ]; then
+    echo "============================================"
+    echo "  Agent Personality"
+    echo "============================================"
+    echo ""
+
+    # Name
+    read -rp "Agent name? (default: $BOT_NAME): " _name
+    [ -n "$_name" ] && BOT_NAME="$_name"
+    echo ""
+
+    # Trading style
+    echo "What kind of trader should this be?"
+    echo "  1) Conservative Value Investor (patient, high-conviction bets only)"
+    echo "  2) Aggressive Market Maker (fast, frequent trades, capture spreads)"
+    echo "  3) Momentum Trader (follow trends, buy into strength)"
+    echo "  4) Balanced All-Rounder (mix of everything — default)"
+    echo "  5) Custom (configure manually)"
+    echo ""
+    read -rp "Choice [1-5] (default: 4): " _style
+    case "$_style" in
+        1)
+            STRATEGY="value"
+            AGGRESSIVENESS="conservative"
+            ;;
+        2)
+            STRATEGY="market_making,arbitrage"
+            AGGRESSIVENESS="aggressive"
+            ;;
+        3)
+            STRATEGY="momentum,value"
+            AGGRESSIVENESS="aggressive"
+            ;;
+        4|"")
+            STRATEGY="all"
+            AGGRESSIVENESS="moderate"
+            ;;
+        5)
+            read -rp "  Strategies (value,market_making,arbitrage,momentum,all): " _strat
+            [ -n "$_strat" ] && STRATEGY="$_strat"
+            read -rp "  Aggressiveness (conservative/moderate/aggressive/yolo): " _agg
+            [ -n "$_agg" ] && AGGRESSIVENESS="$_agg"
+            ;;
+    esac
+    echo ""
+
+    # Risk tolerance
+    echo "Risk tolerance?"
+    echo "  1) Low    — max \$10/trade, 30% of balance deployed"
+    echo "  2) Medium — max \$25/trade, 50% of balance deployed"
+    echo "  3) High   — max \$50/trade, 70% of balance deployed (default)"
+    echo "  4) YOLO   — max \$100/trade, 90% of balance deployed"
+    echo ""
+    read -rp "Choice [1-4] (default: 3): " _risk
+    case "$_risk" in
+        1)
+            MAX_POSITION_USDC=10
+            DEFAULT_ORDER_SIZE_USDC=2
+            MAX_EXPOSURE_PCT=30
+            STOP_LOSS_PCT=10
+            ;;
+        2)
+            MAX_POSITION_USDC=25
+            DEFAULT_ORDER_SIZE_USDC=5
+            MAX_EXPOSURE_PCT=50
+            STOP_LOSS_PCT=15
+            ;;
+        3|"")
+            MAX_POSITION_USDC=50
+            DEFAULT_ORDER_SIZE_USDC=5
+            MAX_EXPOSURE_PCT=70
+            STOP_LOSS_PCT=20
+            ;;
+        4)
+            MAX_POSITION_USDC=100
+            DEFAULT_ORDER_SIZE_USDC=10
+            MAX_EXPOSURE_PCT=90
+            STOP_LOSS_PCT=30
+            [ "$AGGRESSIVENESS" != "yolo" ] && AGGRESSIVENESS="aggressive"
+            ;;
+    esac
+    echo ""
+
+    # Profit goal
+    read -rp "Profit goal? (default: make \$25 today): " _goal
+    [ -n "$_goal" ] && PROFIT_GOAL="$_goal"
+
+    # Profit mode
+    echo ""
+    echo "What should the agent do with profits?"
+    echo "  1) Compound — reinvest everything, keep growing (default)"
+    echo "  2) Cashout  — take profits and send to your personal wallet"
+    echo ""
+    read -rp "Choice [1-2] (default: 1): " _mode
+    case "$_mode" in
+        2) PROFIT_MODE="cashout" ;;
+        *) PROFIT_MODE="compound" ;;
+    esac
+    echo ""
+
+    echo "============================================"
+    echo "  $BOT_NAME — $STRATEGY / $AGGRESSIVENESS"
+    echo "  Goal: $PROFIT_GOAL"
+    echo "  Risk: max \$$MAX_POSITION_USDC/trade, ${MAX_EXPOSURE_PCT}% exposure"
+    echo "  Profits: $PROFIT_MODE"
+    echo "============================================"
+    echo ""
+fi
+
 # Write env file
 cat > "$ENV_FILE" << EOF
-# $AGENT_NAME — $ADDRESS
+# $BOT_NAME — $ADDRESS
 # Network: $NETWORK (change to "mainnet" when ready)
+AGENT_NAME=$BOT_NAME
 NETWORK=$NETWORK
 PRIVATE_KEY=$PRIVATE_KEY
 EXCHANGE_URL=$EXCHANGE_URL
@@ -254,23 +381,23 @@ RPC_URL=$RPC_URL
 # ── Trading personality ──────────────────────────────────
 # STRATEGY: comma-separated list of strategies to use
 #   Options: value, market_making, arbitrage, momentum, all
-STRATEGY=all
+STRATEGY=$STRATEGY
 # AGGRESSIVENESS: how much risk to take
 #   Options: conservative, moderate, aggressive, yolo
-AGGRESSIVENESS=moderate
+AGGRESSIVENESS=$AGGRESSIVENESS
 # PROFIT_GOAL: natural language target for the session
 #   Examples: "make \$20 today", "double my money", "slow and steady 5% gains"
-PROFIT_GOAL=make \$25 today
+PROFIT_GOAL=$PROFIT_GOAL
 # PROFIT_MODE: what to do with profits
 #   compound = reinvest everything, keep growing the balance
 #   cashout  = when ahead of target, transfer profits to WITHDRAW_TO
-PROFIT_MODE=compound
+PROFIT_MODE=$PROFIT_MODE
 
 # ── Risk limits ─────────────────────────────────────────
-MAX_POSITION_USDC=50
-DEFAULT_ORDER_SIZE_USDC=5
-MAX_EXPOSURE_PCT=70
-STOP_LOSS_PCT=20
+MAX_POSITION_USDC=$MAX_POSITION_USDC
+DEFAULT_ORDER_SIZE_USDC=$DEFAULT_ORDER_SIZE_USDC
+MAX_EXPOSURE_PCT=$MAX_EXPOSURE_PCT
+STOP_LOSS_PCT=$STOP_LOSS_PCT
 
 # ── Cashout ─────────────────────────────────────────────
 # Set this to your personal wallet address to enable cashout

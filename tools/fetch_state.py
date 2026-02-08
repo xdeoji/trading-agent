@@ -34,6 +34,7 @@ def main():
         data = resp.json()
         data["success"] = True
         data["agentConfig"] = {
+            "name": cfg["AGENT_NAME"],
             "strategy": cfg["STRATEGY"],
             "aggressiveness": cfg["AGGRESSIVENESS"],
             "profitGoal": cfg["PROFIT_GOAL"],

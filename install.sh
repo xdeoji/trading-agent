@@ -11,7 +11,8 @@
 #   6. Runs ready check
 #
 # Usage:
-#   bash install.sh                    # testnet (default)
+#   bash install.sh                    # testnet, default personality
+#   bash install.sh --interactive      # testnet, choose personality
 #   NETWORK=mainnet bash install.sh    # mainnet
 #
 # After install, fund MON + USDC to the printed address, then:
@@ -86,10 +87,18 @@ fi
 
 # ── Step 5: Generate wallet ──────────────────────────────────
 
+# Pass --interactive through if provided
+SETUP_FLAGS=""
+for arg in "$@"; do
+    if [ "$arg" = "--interactive" ] || [ "$arg" = "-i" ]; then
+        SETUP_FLAGS="--interactive"
+    fi
+done
+
 if [ -f "agent.env" ]; then
     echo "[5/5] Wallet exists (agent.env) ✓"
 else
-    bash setup-agent.sh
+    bash setup-agent.sh $SETUP_FLAGS
     echo "[5/5] Wallet generated ✓"
 fi
 
